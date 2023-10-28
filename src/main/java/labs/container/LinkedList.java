@@ -7,58 +7,74 @@ public class LinkedList<E> implements Iterable<E> {
 
 	private LinkedListNode<E> first;
 	private LinkedListNode<E> last;
-	
-	LinkedList()
-	{
+
+	LinkedList() {
 		first = null;
 		last = null;
 	}
 
-	LinkedList(Iterable<? extends E> iterable)
-	{
+	LinkedList(Iterable<? extends E> iterable) {
 		Iterator<? extends E> iter = iterable.iterator();
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			E elem = iter.next();
-			append(elem);
+			add(elem);
 		}
 	}
-	
-	public void append(E data)
-	{
+
+	public void add(E data) {
 		LinkedListNode<E> node = new LinkedListNode<>(data);
-		if(isEmpty()) {
+		if (isEmpty()) {
 			first = node;
 			last = node;
 		} else {
 			node.previous = last;
+			last.next = node;
 			last = node;
 		}
 	}
-	
-	public void appendAll(LinkedList<? extends E> other)
-	{
+
+	public void addAll(LinkedList<? extends E> other) {
 		Iterator<? extends E> iter = other.iterator();
-		while(iter.hasNext()) {
-			append(iter.next());
+		while (iter.hasNext()) {
+			add(iter.next());
 		}
 	}
-	
-	// TODO: write push method
-	public void clear()
-	{
+
+	public void addFirst(E data) {
+		LinkedListNode<E> node = new LinkedListNode<>(data);
+		if (isEmpty()) {
+			first = node;
+			last = node;
+		} else {
+			node.next = first;
+			first.previous = node;
+			first = node;
+		}
+	}
+
+	public void clear() {
 		first = null;
 		last = null;
 	}
-	
-	public boolean remove(Object obj)
-	{
-		if(isEmpty()) {
+
+	public boolean remove(final Object obj) {
+		return removeIf(new Predicate<Object>() {
+			@Override
+			public boolean test(Object t) {
+				return t == obj;
+			}
+		});
+	}
+
+	// TODO: doc out remove only the first occurred element
+	public boolean removeIf(Predicate<? super E> filter) {
+		if (isEmpty()) {
 			return false;
 		}
 		LinkedListNode<E> temp = first;
-		while(temp.next != null) {
-			if(temp == obj) {
-				if(temp == first) {
+		while (temp != null) {
+			if (filter.test(temp.data)) {
+				if (temp == first) {
 					first = temp.next;
 					temp.next = null;
 					first.previous = null;
@@ -75,81 +91,73 @@ public class LinkedList<E> implements Iterable<E> {
 					temp.next = null;
 				}
 				return true;
-			} // TODO: rewrite using remove
+			}
 			temp = temp.next;
 		}
 		return false;
 	}
-	// TODO: doc out remove only the first occurred element
-	public boolean removeIf(Predicate<? super E> filter)
-	{
-		Iterator<E> iter = this.iterator();
-		while(iter.hasNext()) {
-			E elem = iter.next();
-			if(filter.test(elem)) {
-				iter.remove(); // TODO: handle if iter is first or last or smth like that
-				// maybe extract this shit to special function
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public E getFirst()
-	{
+
+	public E getFirst() {
 		LinkedListNode<E> oldFirst = first;
-		first = first.next; // TODO: extract shit of working with nodes to static shit in linkedlistnode
+		first = first.next;
 		first.previous = null;
 		oldFirst.next = null;
 		return oldFirst.data;
 	}
-	
-	public E getLast()
-	{
+
+	public E getLast() {
 		LinkedListNode<E> oldLast = last;
 		last = last.previous;
 		last.next = null;
 		oldLast.previous = null;
 		return oldLast.data;
 	}
-	
-	public E getAt(int index)
-	{
-		// TODO: write check if index is negative
+
+	public E getAt(int index) {
+		if (index < 0) {
+			throw new IndexOutOfBoundsException();
+		}
+
 		Iterator<E> iter = this.iterator();
+		// count = -1 because of the while in while we first of all get iter.next()
+		// and for more readability in the top of the while we also increase count
+		// so that the initial value must be -1 for the first iterator count variable to be equal to 0
 		int count = -1;
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			E elem = iter.next();
 			count++;
-			if(count == index) {
+			if (count == index) {
 				return elem;
 			}
 		}
 		throw new IndexOutOfBoundsException();
 	}
-	
-	public boolean isEmpty()
-	{
-		return true;
+
+	public boolean isEmpty() {
+		return (first == null || last == null);
 	}
-	
+
 	@Override
-	public Iterator<E> iterator()
-	{
+	public Iterator<E> iterator() {
 		return new LinkedListIterator<>(first);
 	}
-	
-	public int size()
-	{
+
+	public int size() {
 		int size = 0;
 		Iterator<E> iter = this.iterator();
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			size++;
 		}
 		return size;
 	}
-	
-	
-	
-}
 
+	@Override
+	public String toString() {
+		String str = "LinkedList object that holds next data: ";
+		for (E elem : this) {
+			str += elem.toString() + " ";
+		}
+		return str;
+	}
+
+}

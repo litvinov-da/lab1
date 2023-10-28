@@ -4,38 +4,38 @@ import java.util.Iterator;
 
 class LinkedListIterator<E> implements Iterator<E> {
 	private LinkedListNode<E> current;
-	
-	LinkedListIterator(LinkedListNode<E> current)
-	{
+	private LinkedListNode<E> thrown;
+
+	LinkedListIterator(LinkedListNode<E> current) {
 		this.current = current;
 	}
-	
 
 	@Override
 	public boolean hasNext() {
-		return current != null && current.next != null;
+		return current != null;
 	}
 
 	@Override
 	public E next() {
 		E data = current.data;
+		thrown = current;
 		current = current.next;
 		return data;
 	}
-	
+
 	@Override
 	public void remove() {
-		if(current.previous == null) {
-			current.next.previous = null;
-		} else if (current.next == null) {
-			current.previous.next = null;
+		if (thrown.previous == null) {
+			thrown.next.previous = null;
+		} else if (thrown.next == null) {
+			thrown.previous.next = null;
 		} else {
-			LinkedListNode<E> prev = current.previous;
-			LinkedListNode<E> next = current.next;
+			LinkedListNode<E> prev = thrown.previous;
+			LinkedListNode<E> next = thrown.next;
 			next.previous = prev;
 			prev.next = next;
 		}
-		current.next = null;
-		current.previous = null;
+		thrown.next = null;
+		thrown.previous = null;
 	}
 }
