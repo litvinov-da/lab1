@@ -3,8 +3,8 @@ package labs.container;
 import java.util.function.Predicate;
 
 /**
- * Hello world!
- *
+ * App class
+ * Checks if the list @see LinkedList is working properly
  */
 public class App {
 	public static void main(String[] args) {
